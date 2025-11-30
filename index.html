@@ -3,31 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Search PWA</title>
+    <title>TeXMathPro Search</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4CAF50">
 </head>
 <body>
     <div class="container">
-        <h1>Product Lookup</h1>
+        <h1>TeXMathPro Lookup</h1>
+        
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="Enter Product ID (e.g., GA-QA-EB-MFP)" autofocus>
         </div>
-        <div id="result" class="result-card hidden">
-            <h2 id="productTitle"></h2>
-            <p id="productIdLabel"></p>
-        </div>
+        
         <div id="loading" class="hidden">Loading database...</div>
         <div id="error" class="hidden">Product not found</div>
+
+        <div id="emailComposer" class="composer-card hidden">
+            <h2 id="productTitleDisplay"></h2>
+            
+            <div class="form-group">
+                <label>Recipient Email</label>
+                <input type="email" id="emailTo" placeholder="customer@example.com">
+            </div>
+
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" id="emailSubject">
+            </div>
+
+            <div class="form-group">
+                <label>Message</label>
+                <textarea id="emailBody" rows="6"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Attachment (Link/Path)</label>
+                <input type="text" id="emailAttachment" readonly>
+                <small>Note: This link is included in the email body button below.</small>
+            </div>
+
+            <button id="sendBtn" class="btn-primary">Open in Email App</button>
+        </div>
     </div>
 
     <script src="app.js"></script>
     <script>
-        // Register Service Worker for PWA installability
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('Service Worker Registered'));
+            navigator.serviceWorker.register('sw.js');
         }
     </script>
 </body>
