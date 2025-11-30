@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4CAF50">
+    
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
 </head>
 <body>
     <div class="container">
@@ -37,7 +40,8 @@
                 <textarea id="emailBody" rows="6"></textarea>
             </div>
             
-            <button id="sendBtn" class="btn-primary">Open in Email App</button>
+            <button id="sendBtn" class="btn-primary">Send Email</button> 
+            <small id="authStatus" style="display:block; margin-top:10px; color:#c77f00;">Please sign in to send mail.</small>
         </div>
     </div>
 
