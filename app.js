@@ -8,6 +8,7 @@ const SCOPES = 'https://www.googleapis.com/auth/gmail.send';
 let products = [];
 let tokenClient;
 let isLoggedIn = false;
+let currentProductTitle = ''; // Stores the Product Title to ensure subject is stable
 
 const searchInput = document.getElementById('searchInput');
 const composerDiv = document.getElementById('emailComposer');
@@ -32,7 +33,6 @@ async function fetchProducts() {
         const data = await response.text();
         parseCSV(data);
         loadingDiv.classList.add('hidden');
-        // Start loading the Google API after data loads
         window.gapi.load('client', initializeGapiClient);
     } catch (err) {
         console.error("Error fetching data:", err);
@@ -59,6 +59,7 @@ searchInput.addEventListener('input', (e) => {
     if (!query) {
         composerDiv.classList.add('hidden');
         errorDiv.classList.add('hidden');
+        currentProductTitle = ''; // Clear title when search is empty
         return;
     }
 
@@ -67,9 +68,12 @@ searchInput.addEventListener('input', (e) => {
     if (match) {
         composerDiv.classList.remove('hidden');
         errorDiv.classList.add('hidden');
-        titleDisplay.textContent = match.title;
+        
+        // Update product title and set current subject reference
+        currentProductTitle = match.title; 
+        titleDisplay.textContent = currentProductTitle;
 
-        subjectInput.value = match.title;
+        subjectInput.value = currentProductTitle; // Set subject from search
         
         const messageTemplate = `Narito na ang ${match.type} mo, Grade ${match.grade} KasaMath. I-click mo lang ito: ${match.filePath}
 
@@ -80,20 +84,25 @@ Salamat sa pagsuporta sa TeXMathPro. Sa uulitin po!`;
     } else {
         composerDiv.classList.add('hidden');
         if(query.length > 5) errorDiv.classList.remove('hidden');
+        currentProductTitle = ''; // Clear reference if search fails
+    }
+});
+
+// --- DEFENSIVE FIX: Prevent Recipient Email from changing the Subject ---
+emailToInput.addEventListener('input', () => {
+    // If the Subject input value does NOT match the last successfully searched ProductTitle,
+    // force it to revert, thus preventing the recipient email input from overwriting it.
+    if (subjectInput.value !== currentProductTitle && currentProductTitle !== '') {
+        subjectInput.value = currentProductTitle;
     }
 });
 
 
 /* --- 2. GOOGLE AUTH & SENDING --- */
 
-/**
- * Initializes the Google API client and token client.
- */
 function initializeGapiClient() {
     window.gapi.client.init({
-        // We initialize without an API key since we're using OAuth for user scope
     }).then(function () {
-        // Initialize token client for sign-in
         tokenClient = google.accounts.oauth2.initCodeClient({
             client_id: CLIENT_ID,
             scope: SCOPES,
@@ -105,7 +114,7 @@ function initializeGapiClient() {
                 } else {
                     isLoggedIn = true;
                     authStatus.textContent = "Signed in and ready to send.";
-                    sendBtn.textContent = "Send Email"; // Restore button text
+                    sendBtn.textContent = "Send Email";
                     sendBtn.disabled = false;
                 }
             },
@@ -113,11 +122,7 @@ function initializeGapiClient() {
     });
 }
 
-/**
- * Sends the request to authorize and get the token.
- */
 function authorizeAndSend() {
-    // If the user hasn't granted consent, open the consent flow
     tokenClient.callback = (response) => {
         if (response.error) {
              console.error('Authorization failed:', response.error);
@@ -126,29 +131,22 @@ function authorizeAndSend() {
         } else {
             isLoggedIn = true;
             authStatus.textContent = "Signed in and sending...";
-            // Once authorized, proceed to send the email
             sendMail();
         }
     };
     
     if (!isLoggedIn) {
-        // This initiates the OAuth flow in a popup
         tokenClient.requestAccessToken({prompt: 'consent'}); 
     } else {
         sendMail();
     }
 }
 
-/**
- * Helper function to convert text to Base64Url
- */
 function base64UrlEncode(str) {
-    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    // Use the UTF-8 version of btoa for safe character encoding
+    return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-/**
- * Sends the actual email using the Gmail API.
- */
 function sendMail() {
     const recipient = emailToInput.value.trim();
     const subject = subjectInput.value.trim();
@@ -190,7 +188,6 @@ function sendMail() {
             console.error('Send Error:', response);
         }
         
-        // Reset button text after a delay
         setTimeout(() => {
             sendBtn.textContent = "Send Email";
         }, 3000);
