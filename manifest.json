@@ -1,0 +1,20 @@
+{
+  "name": "Product DB Search",
+  "short_name": "ProdSearch",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f4f9",
+  "theme_color": "#4CAF50",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/4CAF50/FFFFFF?text=DB",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512/4CAF50/FFFFFF?text=DB",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
