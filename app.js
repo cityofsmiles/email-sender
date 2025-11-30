@@ -12,7 +12,7 @@ const titleDisplay = document.getElementById('productTitleDisplay');
 const emailToInput = document.getElementById('emailTo');
 const subjectInput = document.getElementById('emailSubject');
 const bodyInput = document.getElementById('emailBody');
-const attachmentInput = document.getElementById('emailAttachment');
+// Removed attachmentInput
 const sendBtn = document.getElementById('sendBtn');
 
 // Fetch data
@@ -29,7 +29,7 @@ async function fetchProducts() {
     }
 }
 
-// Parse CSV - **UPDATED INDICES BASED ON YOUR HEADERS**
+// Parse CSV - INDICES confirmed by your header list
 function parseCSV(csvText) {
     const rows = csvText.split('\n').map(row => row.split(','));
     
@@ -65,18 +65,16 @@ searchInput.addEventListener('input', (e) => {
 
         // Auto-fill Fields
         subjectInput.value = match.title;
-        attachmentInput.value = match.filePath;
         
-        // Template Logic
-        const messageTemplate = `Naka-attach dito ang ${match.type} mo, Grade ${match.grade} KasaMath. Salamat sa pagsuporta sa TeXMathPro. Sa uulitin po!
+        // --- UPDATED MESSAGE TEMPLATE ---
+        const messageTemplate = `Narito na ang ${match.type} mo, Grade ${match.grade} KasaMath. I-click mo lang ito: ${match.filePath}
 
-Attachment Link: ${match.filePath}`;
+Salamat sa pagsuporta sa TeXMathPro. Sa uulitin po!`;
         
         bodyInput.value = messageTemplate;
 
     } else {
         composerDiv.classList.add('hidden');
-        // Only show "not found" if the user has typed a meaningful ID length
         if(query.length > 5) errorDiv.classList.remove('hidden');
     }
 });
